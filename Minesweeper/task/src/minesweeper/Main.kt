@@ -1,6 +1,7 @@
 package minesweeper
 
 import kotlin.random.Random
+import java.util.Scanner
 
 fun addAround(field: Array<CharArray>, sizeField: Int): Array<CharArray> {
     for (x in 0 until sizeField) {
@@ -43,18 +44,42 @@ fun addMine(field: Array<CharArray>): Array<CharArray> {
 }
 
 fun main() {
+    val scanner = Scanner(System.`in`)
+
     val sizeField = 9
     var field: Array<CharArray> = Array(sizeField) { CharArray(sizeField) {'.'} }
+    var newField: Array<CharArray> = Array(sizeField) { CharArray(sizeField) {'.'} }
 
     print("How many mines do you want on the field? > ")
-    val countMine = readLine()!!.toInt()
+    val countMine = scanner.nextInt()
 
     for (i in 0 until countMine) {
         field = addMine(field)
     }
     field = addAround(field, sizeField)
-
     for (i in 0 until sizeField) {
-        println(field[i].joinToString(separator=""))
+        for (j in 0 until sizeField) {
+            if (field[i][j] == 'X') newField[i][j] = '.'
+            else newField[i][j] = field[i][j]
+        }
     }
+
+    printField(newField, sizeField)
+    //printField(field, sizeField)
+    while (!checkField(field, newField, sizeField)) {
+        print("Set/delete mines marks (x and y coordinates): >")
+        var positY = scanner.nextInt()
+        var positX = scanner.nextInt()
+        positX--
+        positY--
+        if (positX in 0 until sizeField && positY in 0 until sizeField) {
+            when (newField[positX][positY]) {
+                '.' -> newField[positX][positY] = '*'
+                '*' -> newField[positX][positY] = '.'
+                else -> println("There is a number here!")
+            }
+        }
+        printField(newField, sizeField)
+    }
+    println("Congratulations! You found all the mines!")
 }
